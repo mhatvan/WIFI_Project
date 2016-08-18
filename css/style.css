@@ -1,0 +1,106 @@
+/* 
+
+TODO:
+
+wie kann ich external js den mapping code einbinden? alles inline, auch bei bsp online
+so funktioniert linter nicht
+
+map responsive?
+
+<!-- mehr dokumentieren, auch arbeitstschritte und probleme, am charts, d3 differenz, conversion topojson sagen-->
+  
+<!--  csv to json/xml converter in einem downloadbaren link -->
+  
+<!--  data finden, applikation besser definieren und die screens -->
+  
+<!--  mit domain und range karte mitskalieren lassen, bei mobile dann automatisch in landscape view wechseln? -->
+ 
+<!--  user zweck rausfinden, soll ne lernapplikation sein? gleich die map da oder mit intro? -->
+
+<!-- screens runterladbar machen als pdf? -->
+*/
+
+
+/* Styling of Font etc */
+
+html {
+    font-size: 62.5%;
+    /*    overflow-x: hidden;*/
+    /*    overflow-y: scroll;*/
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    color: #000000;
+    position: relative;
+    line-height: 2;
+    min-width: 320px;
+}
+
+.container {
+    position: absolute;
+    background-color: #bcbcbc;
+    width: 90vw;
+    height: 85vh;
+    margin: auto;
+    padding: 15px 15px;
+}
+
+u p {
+    font-size: 1.6rem;
+    text-align: center;
+}
+
+
+/* Styling of Map */
+
+svg {
+    position: absolute;
+    background-color: #a8a894;
+    width: 90vw;
+    height: 85vh;
+}
+
+path {
+    stroke: #d86400;
+    stroke-width: 0.5px;
+    /*    fill: green;*/
+}
+
+#legend {
+    position: absolute;
+    padding: 1.5em 0 0 1em;
+    background-color: #605050;
+    border-radius: 30px;
+    min-width: 200px;
+    z-index: 999;
+    bottom: 5.4%;
+    left: 3%;
+}
+
+#home {
+    position: absolute;
+    background-color: #605050;
+    border-radius: 15px;
+    min-width: 60px;
+    min-height: 60px;
+    z-index: 999;
+    top: 5.4%;
+    left: 3%;
+}
+
+li.key {
+    border-top-width: 20px;
+    border-top-style: solid;
+    font-size: 2rem;
+    width: 100%;
+    list-style-type: none;
+    display: inline;
+    color: white;
+}
+
+.fa-home{
+    color: white;
+    padding: 10px;
+}
