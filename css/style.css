@@ -1,32 +1,5 @@
-/* 
-
-TODO:
-
-wie kann ich external js den mapping code einbinden? alles inline, auch bei bsp online
-so funktioniert linter nicht
-
-map responsive?
-
-<!-- mehr dokumentieren, auch arbeitstschritte und probleme, am charts, d3 differenz, conversion topojson sagen-->
-  
-<!--  csv to json/xml converter in einem downloadbaren link -->
-  
-<!--  data finden, applikation besser definieren und die screens -->
-  
-<!--  mit domain und range karte mitskalieren lassen, bei mobile dann automatisch in landscape view wechseln? -->
- 
-<!--  user zweck rausfinden, soll ne lernapplikation sein? gleich die map da oder mit intro? -->
-
-<!-- screens runterladbar machen als pdf? -->
-*/
-
-
-/* Styling of Font etc */
-
 html {
     font-size: 62.5%;
-    /*    overflow-x: hidden;*/
-    /*    overflow-y: scroll;*/
 }
 
 body {
@@ -38,56 +11,92 @@ body {
     min-width: 320px;
 }
 
-.container {
-    position: absolute;
+#container {
+    position: relative;
     background-color: #bcbcbc;
-    width: 90vw;
+    width: 95vw;
     height: 85vh;
     margin: auto;
-    padding: 15px 15px;
+    padding: 15px;
 }
 
 u p {
-    font-size: 1.6rem;
+    font-size: 2.6rem;
     text-align: center;
 }
 
-
-/* Styling of Map */
-
 svg {
-    position: absolute;
-    background-color: #a8a894;
-    width: 90vw;
-    height: 85vh;
+    position: relative;
+    display: block;
+    margin: auto;
+    background-color: #a7a8c1;
+    width: 100%;
+    border: 1px solid black;
+/*    margin-right: 0;*/
 }
 
 path {
     stroke: #d86400;
     stroke-width: 0.5px;
-    /*    fill: green;*/
-}
-
-#legend {
-    position: absolute;
-    padding: 1.5em 0 0 1em;
-    background-color: #605050;
-    border-radius: 30px;
-    min-width: 200px;
-    z-index: 999;
-    bottom: 5.4%;
-    left: 3%;
 }
 
 #home {
-    position: absolute;
+    position: relative;
     background-color: #605050;
     border-radius: 15px;
     min-width: 60px;
     min-height: 60px;
     z-index: 999;
-    top: 5.4%;
+    top: 5%;
     left: 3%;
+}
+
+.fa-home {
+    color: white;
+    padding: 10px;
+}
+
+#zoom_in {
+    position: relative;
+    background-color: #605050;
+    border-radius: 15px;
+    min-width: 60px;
+    min-height: 60px;
+    z-index: 999;
+    top: 15%;
+    left: 3%;
+}
+
+.fa-plus {
+    color: white;
+    padding: 10px 13px;
+}
+
+#zoom_out {
+    position: relative;
+    background-color: #605050;
+    border-radius: 15px;
+    min-width: 60px;
+    min-height: 60px;
+    z-index: 999;
+    top: 25%;
+    left: 3%;
+}
+
+.fa-minus {
+    color: white;
+    padding: 10px 13px;
+}
+
+#legend {
+    position: absolute;
+    padding: 1.5rem 0 0 1rem;
+    background-color: #605050;
+    border-radius: 30px;
+    min-width: 200px;
+    z-index: 999;
+    bottom: 25px;
+    left: 40px;
 }
 
 li.key {
@@ -100,7 +109,46 @@ li.key {
     color: white;
 }
 
-.fa-home{
-    color: white;
-    padding: 10px;
+#buttons {
+    position: absolute;
+    top: 85px;
 }
+
+ul li {
+    margin-bottom: 20px;
+    list-style-type: none;
+}
+
+#togglebuttons {
+    position: absolute;
+    display: flex;
+    top: 120px;
+    left: 20%;  
+}
+
+
+input[type="button"]{
+    
+   padding: 10px 60px;
+    border-right-color: beige;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #605050;
+    border-collapse:collapse;
+    margin-right: -2px;
+}
+
+
+input[type="button"]:focus{
+    
+   background-color: #605050;
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 1);
+    transition: color 1s;
+    transition: background-color 1s;
+}
+
+
+
+
+
