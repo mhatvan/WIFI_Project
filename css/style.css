@@ -25,14 +25,14 @@ u p {
     text-align: center;
 }
 
-svg {
+#map-background {
     position: relative;
     display: block;
     margin: auto;
     background-color: #a7a8c1;
     width: 100%;
     border: 1px solid black;
-/*    margin-right: 0;*/
+    /*    margin-right: 0;*/
 }
 
 path {
@@ -89,13 +89,14 @@ path {
 }
 
 #legend {
-    position: absolute;
+    /*    position: absolute;*/
+    width: 10%;
     padding: 1.5rem 0 0 1rem;
     background-color: #605050;
     border-radius: 30px;
     min-width: 200px;
     z-index: 999;
-    bottom: 25px;
+    /*    bottom: 25px;*/
     left: 40px;
 }
 
@@ -123,32 +124,38 @@ ul li {
     position: absolute;
     display: flex;
     top: 120px;
-    left: 20%;  
+    left: 20%;
 }
 
-
-input[type="button"]{
-    
-   padding: 10px 60px;
-    border-right-color: beige;
+input[type="button"] {
+    padding: 10px 60px;
+/*    border-right-color: beige;*/
     border-width: 2px;
     border-style: solid;
     border-color: #605050;
-    border-collapse:collapse;
-    margin-right: -2px;
+    border-collapse: collapse;
+    margin-right: 1px;
 }
 
-
-input[type="button"]:focus{
-    
-   background-color: #605050;
+input[type="button"]:focus {
+    background-color: #605050;
     border-color: rgba(255, 255, 255, 0.5);
     color: rgba(255, 255, 255, 1);
     transition: color 1s;
     transition: background-color 1s;
 }
 
+.chart {
+    background-color: #c1c1d0;
+    width: 100%;
+}
 
+.chart rect {
+    fill: steelblue;
+}
 
-
-
+.chart text {
+    fill: yellow;
+    font: 20px sans-serif;
+    text-anchor: end;
+}
