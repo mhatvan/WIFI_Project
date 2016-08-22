@@ -1,6 +1,7 @@
 (function () {
     "use strict";
 
+
     /* Map wird erstellt */
 
     var mapWidth = 500;
@@ -42,7 +43,6 @@
     d3.csv("data/aut-productivity.csv", function (data) {
         color.domain([
             d3.min(data, function (d) {
-                //                console.log(d.value);
                 return d.value;
             }),
              d3.max(data, function (d) {
@@ -56,24 +56,19 @@
             if (error) {
                 throw error;
             }
-            //Merge the ag. data and GeoJSON
-            //Loop through once for each ag. data value
+
             for (var i = 0; i < data.length; i++) {
-                //            console.log(data.length);
-                var dataState = data[i].state; //Grab state name
-                //            console.log(dataState);
-                var dataValue = parseFloat(data[i].value); //Grab data value, and convert from string to float
-                //Find the corresponding state inside the GeoJSON
+
+                var dataState = data[i].state;
+
+                var dataValue = parseFloat(data[i].value);
+
                 for (var j = 0; j < dach.features.length; j++) {
 
                     var jsonState = dach.features[j].properties.NAME;
-                    // console.log(jsonState);
+
                     if (dataState == jsonState) {
-
-                        //Copy the data value into the JSON
                         dach.features[j].properties.value = dataValue;
-
-                        //Stop looking through the JSON
                         break;
 
                     }
@@ -89,16 +84,15 @@
                 .enter()
                 .append("path")
                 .attr("d", path)
-                //                .on("click", clicked)
                 .style("fill", function (d) {
                     var value = d.properties.value;
 
                     if (value) {
                         return color(value);
 
-                        /* Fallback auf Orange */
+                        /* Fallback auf Weiß */
                     } else {
-                        return "orange";
+                        return "white";
                     }
                 });
 
@@ -151,7 +145,6 @@
             return formats.percent(r[0]);
         });
 
-
     /* Map wird je nach User Device responsive bei load und bleibt es beim resizen des Fensters */
 
     d3.select(window)
@@ -169,35 +162,129 @@
 
     /* TABELLEN DATA MAPPING */
 
+    $("#A").on("click", function () {
+        var toggleA = true;
+        if (toggleA === true) {
+            //            showMüllChart();
+            $(".chart").show(500);
+            toggleA = false;
+        }
+
+        if (toggleA === false) {
+            $("#red-box").hide(500);
+            $("#green-box").hide(500);
+            toggleA = true;
+        }
+
+    });
+
+    $("#B").on("click", function () {
+        var toggleB = true;
+        if (toggleB === true) {
+            //            showDummy();
+            $("#red-box").show(500);
+            toggleB = false;
+        }
+
+        if (toggleB === false) {
+            $(".chart").hide(500);
+            $("#green-box").hide(500);
+            toggleB = true;
+        }
+
+
+    });
+
+    $("#C").on("click", function () {
+        var toggleC = true;
+        if (toggleC === true) {
+            //            showDummy();
+            $("#green-box").show(500);
+            toggleC = false;
+        }
+
+        if (toggleC === false) {
+            $(".chart").hide(500);
+            $("#red-box").hide(500);
+            toggleC = true;
+        }
+
+
+    });
+
+
+    //    function showDummy() {
+    d3.select(".container").append("div")
+        .style("width", "100%")
+        .style("height", "100px")
+        .style("background-color", "red")
+        .attr("id", "red-box");
+    //    }
+
+
+    d3.select(".container").append("div")
+        .style("width", "100%")
+        .style("height", "100px")
+        .style("background-color", "green")
+        .attr("id", "green-box");
+
+    $("#green-box").hide();
+    $("#red-box").hide();
+    $(".chart").hide();
+
+
+    //    function showMüllChart() {
+
+
+    /* Abfallaufkommen nach Abfallkategorie */
+
     d3.json("http://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/de/ten00108", function (error, chartdata) {
         if (error) {
             console.log(error);
         }
+
         console.log(chartdata);
-        //    console.log(chartdata.dimension.geo.category.index.AT);
-        //    console.log(chartdata.dimension.geo.category.index);
+
+        //        console.log(Object.keys(chartdata.value).length);
+        //        var check = Object.keys(chartdata.value).length;
+
+        /*for (var i = 0; i < 5; i++){
+            console.log(chartdata);
+            var chartdata = [chartdata.value[i]];
+        }*/
+
+        /*for (var i = 0; i < check; i++) {
+
+            console.log(Object.keys(chartdata.value).length);
+
+            var chartdata = chartdata.value[i];
+            console.log(chartdata.value[i]);
+        }*/
+
+        d3.select(".chart")
+            .style("background-color", "#c1c1d0")
+            .style("width", "100%");
 
         var chartdata = [chartdata.value[0],
-                        chartdata.value[1],
-                        chartdata.value[2],
-                        chartdata.value[3],
-                        chartdata.value[4]
-                       ];
+                          chartdata.value[1],
+                          chartdata.value[2],
+                          chartdata.value[3],
+                          chartdata.value[4]
+                         ];
 
         var barHeight = 20;
 
         var barLength = d3.scale.linear()
             .domain([0, d3.max(chartdata)])
-            .range([0, window.innerWidth - 130]);
+            //            .range([0, window.innerWidth - 130]);
+            .range([0, window.innerWidth - 100]);
 
         var chart = d3.select(".chart");
 
         chart.attr("height", barHeight * chartdata.length);
 
-        console.log(chart);
+        //        console.log(chart);
         //        console.log(chart[0][0].width.animVal.value);
-
-
 
         var bar = chart.selectAll("g")
             .data(chartdata)
@@ -205,12 +292,6 @@
             .attr("transform", function (d, i) {
                 return "translate(0," + i * barHeight + ")";
             });
-
-        console.log(bar[0]);
-        //        console.log(bar[0][0].width.animVal.value);
-        console.log(bar[0][0].childNodes[0].width.animVal.value);
-        console.log(bar[0]);
-
 
         /* Chart bekommt Bars */
 
@@ -224,27 +305,27 @@
 
         /* Bars bekommen Textwerte */
         bar.append("text")
-            .attr("x", function () {
-                //                return (parseInt(chart[0][0].width.animVal.value) - bar);
-                return (parseInt(chart[0][0].width.animVal.value));
+            .attr("x", function (d) {
+
+                //                return (((parseInt(chart[0][0].width.animVal.value) + (barLength(d))) / 3));
+                return barLength(d) - 3;
 
             })
             .attr("y", barHeight / 2)
 
         /* Damit Text in Box drinnen ist und nicht zuweit oben */
-        .attr("dy", ".35em")
+        .attr("dy", ".23em")
 
         .text(function () {
-            return chartdata;
-            //                            return ["Hansi", "Hansi", "Hansi", "Hansi", "Hansi"];
+
+            for (var i = 0; i <= chartdata.length; i++) {
+                //                console.log(chartdata[i]);
+                return chartdata[i];
+
+
+            }
         });
     });
-
-
-    /* SVG WIDTH - RECT WIDTH = TEXT gut aligned */
-
-
-
 
 
     /*

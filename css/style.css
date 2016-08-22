@@ -20,7 +20,7 @@ body {
     padding: 15px;
 }
 
-u p {
+h1 {
     font-size: 2.6rem;
     text-align: center;
 }
@@ -146,8 +146,8 @@ input[type="button"]:focus {
 }
 
 .chart {
-    background-color: #c1c1d0;
-    width: 100%;
+/*    background-color: #c1c1d0;*/
+/*    width: 100%;*/
 }
 
 .chart rect {
@@ -156,6 +156,6 @@ input[type="button"]:focus {
 
 .chart text {
     fill: yellow;
-    font: 20px sans-serif;
+    font: 16px sans-serif;
     text-anchor: end;
 }
