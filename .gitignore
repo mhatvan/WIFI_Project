@@ -1,3 +1,5 @@
 *.docx
 Mockup_etc/
 TODO.html
+.gitignore
+.jshintrc

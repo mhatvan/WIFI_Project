@@ -1,21 +1,20 @@
 (function () {
     "use strict";
 
-
     /* Map wird erstellt */
 
     var mapWidth = 500;
     var mapHeight = 500;
     //    var centered;
 
-    var scale = 2500;
+    var scale = 1800;
 
     //    var translate = [400, 2950];
     //    var translate = [0,0];
     var translate = [mapWidth / 2, mapHeight / 2];
 
     /* Longitude u Latitude */
-    var center = ([-8, 52.070843]);
+    var center = ([-15, 51.070843]);
 
     var projection = d3.geo.mercator()
         .center(center)
@@ -52,7 +51,7 @@
 
         /* DACH Länder werden ausgelesen */
 
-        d3.json("data/custom.geo.json", function (error, dach) {
+        d3.json("data/custom.geo.json", function (error, countries) {
             if (error) {
                 throw error;
             }
@@ -63,12 +62,12 @@
 
                 var dataValue = parseFloat(data[i].value);
 
-                for (var j = 0; j < dach.features.length; j++) {
+                for (var j = 0; j < countries.features.length; j++) {
 
-                    var jsonState = dach.features[j].properties.NAME;
+                    var jsonState = countries.features[j].properties.NAME;
 
-                    if (dataState == jsonState) {
-                        dach.features[j].properties.value = dataValue;
+                    if (dataState === jsonState) {
+                        countries.features[j].properties.value = dataValue;
                         break;
 
                     }
@@ -78,9 +77,9 @@
             /* Color Mapping auf die einzelnen Länder */
 
             g.append("g")
-                .attr("id", "states")
+                .attr("id", "countries")
                 .selectAll("path")
-                .data(dach.features)
+                .data(countries.features)
                 .enter()
                 .append("path")
                 .attr("d", path)
@@ -90,9 +89,9 @@
                     if (value) {
                         return color(value);
 
-                        /* Fallback auf Weiß */
+                        /* Fallback auf Rot */
                     } else {
-                        return "white";
+                        return "red";
                     }
                 });
 
@@ -100,7 +99,7 @@
             /* Der Ländername wird in das jeweilige Land geschrieben */
 
             g.selectAll("text")
-                .data(dach.features)
+                .data(countries.features)
                 .enter()
                 .append("text")
                 .style("fill", "#ea6e6e")
@@ -145,105 +144,20 @@
             return formats.percent(r[0]);
         });
 
-    /* Map wird je nach User Device responsive bei load und bleibt es beim resizen des Fensters */
-
-    d3.select(window)
-        .on("load", sizeChange);
-
-    d3.select(window)
-        .on("resize", sizeChange);
-
-    function sizeChange() {
-        d3.select("g").attr("transform", "scale(" + $("body").width() / 1700 + ")");
-        $("#map-background").height($("body").width() * 0.418);
-    }
-
 
 
     /* TABELLEN DATA MAPPING */
 
-    $("#A").on("click", function () {
-        var toggleA = true;
-        if (toggleA === true) {
-            //            showMüllChart();
-            $(".chart").show(500);
-            toggleA = false;
-        }
-
-        if (toggleA === false) {
-            $("#red-box").hide(500);
-            $("#green-box").hide(500);
-            toggleA = true;
-        }
-
-    });
-
-    $("#B").on("click", function () {
-        var toggleB = true;
-        if (toggleB === true) {
-            //            showDummy();
-            $("#red-box").show(500);
-            toggleB = false;
-        }
-
-        if (toggleB === false) {
-            $(".chart").hide(500);
-            $("#green-box").hide(500);
-            toggleB = true;
-        }
-
-
-    });
-
-    $("#C").on("click", function () {
-        var toggleC = true;
-        if (toggleC === true) {
-            //            showDummy();
-            $("#green-box").show(500);
-            toggleC = false;
-        }
-
-        if (toggleC === false) {
-            $(".chart").hide(500);
-            $("#red-box").hide(500);
-            toggleC = true;
-        }
-
-
-    });
-
-
-    //    function showDummy() {
-    d3.select(".container").append("div")
-        .style("width", "100%")
-        .style("height", "100px")
-        .style("background-color", "red")
-        .attr("id", "red-box");
-    //    }
-
-
-    d3.select(".container").append("div")
-        .style("width", "100%")
-        .style("height", "100px")
-        .style("background-color", "green")
-        .attr("id", "green-box");
-
-    $("#green-box").hide();
-    $("#red-box").hide();
-    $(".chart").hide();
-
-
-    //    function showMüllChart() {
-
-
     /* Abfallaufkommen nach Abfallkategorie */
 
-    d3.json("http://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/de/ten00108", function (error, chartdata) {
+
+
+    //    function showMüllChart()
+
+    d3.json("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/de/ten00108", function (error, chartdata) {
         if (error) {
             console.log(error);
         }
-
-        console.log(chartdata);
 
         //        console.log(Object.keys(chartdata.value).length);
         //        var check = Object.keys(chartdata.value).length;
@@ -261,36 +175,41 @@
             console.log(chartdata.value[i]);
         }*/
 
-        d3.select(".chart")
-            .style("background-color", "#c1c1d0")
-            .style("width", "100%");
-
-        var chartdata = [chartdata.value[0],
+        var abfall_aut = [chartdata.value[0],
                           chartdata.value[1],
                           chartdata.value[2],
                           chartdata.value[3],
-                          chartdata.value[4]
+                          chartdata.value[4],
+
+                          chartdata.value[30],
+                          chartdata.value[31],
+                          chartdata.value[32],
+                          chartdata.value[33],
+                          chartdata.value[34]
                          ];
 
         var barHeight = 20;
 
+
+
         var barLength = d3.scale.linear()
-            .domain([0, d3.max(chartdata)])
+            .domain([0, d3.max(abfall_aut)])
             //            .range([0, window.innerWidth - 130]);
-            .range([0, window.innerWidth - 100]);
+            .range([0, window.innerWidth - 150]);
 
-        var chart = d3.select(".chart");
+        var chart = d3.select(".chart")
+            .style("width", "100%");
 
-        chart.attr("height", barHeight * chartdata.length);
+        chart.attr("height", barHeight * abfall_aut.length);
 
         //        console.log(chart);
         //        console.log(chart[0][0].width.animVal.value);
 
         var bar = chart.selectAll("g")
-            .data(chartdata)
+            .data(abfall_aut)
             .enter().append("g")
             .attr("transform", function (d, i) {
-                return "translate(0," + i * barHeight + ")";
+                return "translate(10," + i * barHeight + ")";
             });
 
         /* Chart bekommt Bars */
@@ -318,55 +237,181 @@
 
         .text(function () {
 
-            for (var i = 0; i <= chartdata.length; i++) {
-                //                console.log(chartdata[i]);
-                return chartdata[i];
-
-
+            for (var i = 0; i <= abfall_aut.length; i++) {
+                //                console.log(abfall_aut[i]);
+                return abfall_aut[i];
             }
         });
+
+        /* X und Y Achse kreieren für den Chart */
+
+        //Create the SVG Viewport selection
+        var xyAxisContainer = d3.select("#chart-container")
+            //            .style("background-color", "#e3e3e3")
+            .append("svg")
+            .attr("class", "xyaxis")
+            .style("width", "100%")
+            .style("height", 3000)
+            .style("margin-left", 5);
+
+        $(".xyaxis").hide();
+
+        //Create the Scale we will use for the Axis
+        var xScale = d3.scale.linear()
+            .domain([0, (d3.max(abfall_aut))])
+            .range([0, window.innerWidth - 150]);
+
+        var yScale = d3.scale.linear()
+            .domain([0, (d3.max(abfall_aut))])
+            .range([window.innerHeight - 150, 0]);
+
+        //Create the Axis
+        var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("right");
+
+        xyAxisContainer.append("g")
+            .attr("transform", function () {
+                return "translate(0,0)";
+            })
+            .call(xAxis);
+
+        xyAxisContainer.append("g")
+            .attr("transform", function () {
+                return "translate(0,0)";
+            })
+            .call(yAxis);
+
+
+
+
+        /* Chart bekommt Namen der Daten */
+
+        d3.select("#chart-container")
+            .append("div")
+            .attr("id", "chartlabel")
+            .text(chartdata.label);
+
+        $("#chartlabel").insertBefore(".chart");
+
+        $("#chartlabel").hide();
+
     });
 
 
-    /*
-    
-    HTML LÖSUNG
-    
-    
-    d3.select("body").append("div")
-        .attr("class", "infoheader");
+    /* Togglen der Buttons A, B, C */
 
-    var data = [graphdata.value[0],
-                graphdata.value[1],
-                graphdata.value[2],
-                graphdata.value[3],
-                graphdata.value[4]
-               ];
+    $("#A").on("click", function () {
+        var toggleA = true;
+        if (toggleA === true) {
+            //            showMüllChart();
+            //            $("#chart-container").show(500);
+            $(".chart").show(500);
+            $("#chartlabel").show(500);
+            $(".xyaxis").show(500);
 
-    //    console.log(graphdata.value[4]);
+            toggleA = false;
+        }
+
+        if (toggleA === false) {
+            $("#red-box").hide(500);
+            $("#green-box").hide(500);
+            toggleA = true;
+        }
+
+    });
+
+    $("#B").on("click", function () {
+        var toggleB = true;
+        if (toggleB === true) {
+            //            showDummy();
+            //            $("#chart-container").show(500);
+            $("#red-box").show(500);
+            toggleB = false;
+        }
+
+        if (toggleB === false) {
+            $(".chart").hide(500);
+            $("#chartlabel").hide(500);
+            $(".xyaxis").hide(500);
+            $("#green-box").hide(500);
+            toggleB = true;
+        }
 
 
-    var x = d3.scale.linear()
-        .domain([0, d3.max(data)])
-        .range([0, window.innerWidth - 130]);
+    });
+
+    $("#C").on("click", function () {
+        var toggleC = true;
+        if (toggleC === true) {
+            //            showDummy();
+            //            $("#chart-container").show(500);
+            $("#green-box").show(500);
+            toggleC = false;
+        }
+
+        if (toggleC === false) {
+            $(".chart").hide(500);
+            $("#chartlabel").hide(500);
+            $(".xyaxis").hide(500);
+            $("#red-box").hide(500);
+            toggleC = true;
+        }
+    });
+
+    //    function showDummy() {
+    d3.select("#chart-container").append("div")
+        .style("width", "100%")
+        .style("height", "100px")
+        .style("background-color", "red")
+        .attr("id", "red-box");
+    //    }
+
+    d3.select("#chart-container").append("div")
+        .style("width", "100%")
+        .style("height", "100px")
+        .style("background-color", "green")
+        .attr("id", "green-box");
 
 
-    d3.select(".infoheader").append("div")
-        .attr("class", "chart");
+
+    hideElements();
+
+    function hideElements() {
+        //        $("#chart-container").hide();
+        $("#green-box").hide();
+        $("#red-box").hide();
+        $(".chart").hide();
+        $(".x-axis-A").hide();
+    }
 
 
-    d3.select(".chart")
-        .selectAll("div")
-        .data(data)
-        .enter()
-        .append("div")
-        .style("width", function (d) {
-            return x(d) + "px";
-        })
-        .text(function (d) {
-            return d;
-        });
-*/
+
+
+
+
+
+
+    /* Map wird je nach User Device responsive bei load und bleibt es beim resizen des Fensters */
+
+    d3.select(window)
+        .on("load", sizeChange);
+
+    d3.select(window)
+        .on("resize", sizeChange);
+
+    function sizeChange() {
+        d3.select("g").attr("transform", "scale(" + $("body").width() / 1700 + ")");
+        $("#map-background").height($("body").width() * 0.418);
+    }
+
+
+
+
 
 
 

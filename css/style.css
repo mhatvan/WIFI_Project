@@ -1,5 +1,6 @@
 html {
     font-size: 62.5%;
+    overflow: scroll;
 }
 
 body {
@@ -11,13 +12,22 @@ body {
     min-width: 320px;
 }
 
-#container {
+.map-container {
     position: relative;
-    background-color: #bcbcbc;
+    background-color: #e3e3e3;
     width: 95vw;
-    height: 85vh;
+    height: auto;
     margin: auto;
     padding: 15px;
+}
+
+#chart-container {
+    /* position: relative;
+    width: 95vw;
+    height: auto;
+    margin: auto;*/
+    padding: 15px;
+    /*    background-color: #c6cec6;*/
 }
 
 h1 {
@@ -96,7 +106,7 @@ path {
     border-radius: 30px;
     min-width: 200px;
     z-index: 999;
-    /*    bottom: 25px;*/
+    margin-top: 15px;
     left: 40px;
 }
 
@@ -112,7 +122,7 @@ li.key {
 
 #buttons {
     position: absolute;
-    top: 85px;
+    top: 40px;
 }
 
 ul li {
@@ -122,14 +132,14 @@ ul li {
 
 #togglebuttons {
     position: absolute;
-    display: flex;
-    top: 120px;
-    left: 20%;
+    display: block;
+    top: 60px;
+    left: 15%;
 }
 
 input[type="button"] {
     padding: 10px 60px;
-/*    border-right-color: beige;*/
+    /*    border-right-color: beige;*/
     border-width: 2px;
     border-style: solid;
     border-color: #605050;
@@ -145,11 +155,6 @@ input[type="button"]:focus {
     transition: background-color 1s;
 }
 
-.chart {
-/*    background-color: #c1c1d0;*/
-/*    width: 100%;*/
-}
-
 .chart rect {
     fill: steelblue;
 }
@@ -158,4 +163,10 @@ input[type="button"]:focus {
     fill: yellow;
     font: 16px sans-serif;
     text-anchor: end;
+}
+
+#chartlabel {
+    position: relative;
+    font-size: 2.2rem;
+    margin: 0 0 5px 10px;
 }
