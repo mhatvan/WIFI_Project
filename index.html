@@ -18,25 +18,29 @@
 <body>
 
     <h1><u>WIFI Project</u></h1>
+    <p id="description"> Click on a Country to zoom in and view data! </p>
+
 
     <div class="map-container">
         <svg id="map-background">
-            <ul id="buttons">
-                <li id="home">
-                    <i class="fa fa-home fa-3x" aria-hidden="true"></i>
-                </li>
-                <li id="zoom_in">
-                    <i class="fa fa-plus fa-3x" aria-hidden="true"></i>
-                </li>
-                <li id="zoom_out">
-                    <i class="fa fa-minus fa-3x" aria-hidden="true"></i>
+            <ul id="button">
+                <li id="back">
+                    <i class="fa fa-arrow-left fa-3x" aria-hidden="true"></i>
                 </li>
             </ul>
 
             <div id="togglebuttons">
-                <input type="button" value="A" id="A">
-                <input type="button" value="B" id="B">
-                <input type="button" value="C" id="C">
+                <ul>
+                    <li>
+                        <input type="button" value="waste" id="A">
+                    </li>
+                    <li>
+                        <input type="button" value="co2" id="B"> </li>
+                    <li>
+                        <input type="button" value="water usage" id="C"> </li>
+
+                </ul>
+
             </div>
 
             <div id="legend"></div>
@@ -45,16 +49,16 @@
 
         </svg>
 
-    <div id="chart-container">
+        <div id="chart-container">
 
-        <svg class="chart">
+            <svg class="chart">
 
-        </svg>
+            </svg>
+        </div>
+
     </div>
-   
-    </div>
 
-   
+
 
     <!-- Trenner  -->
 

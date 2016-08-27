@@ -1,7 +1,46 @@
 (function () {
     "use strict";
 
+    //  
+    //    var svg = [];
+    //
+    //
+    //    init();
+    //
+    //    function init() {
+    //        initializeMap();
+    //        createMap();
+    //        returnsvg(500, 500);
+    //    }
+    //    
+    //     function initializeMap() {
+    //    }
+    //
+    //    
+    //    function returnsvg(mapWidth, mapHeight) {
+    //
+    //        var svg = d3.select("#map-background")
+    //            .attr("width", mapWidth)
+    //            .attr("height", mapHeight);
+    //        
+    //        return svg;
+    //    }
+    //    
+    //        console.log(returnsvg());
+    //        
+    //
+    //   
+
+
+
+
+
+
     /* Map wird erstellt */
+
+
+    //    function initializeMap() {
+
 
     var mapWidth = 500;
     var mapHeight = 500;
@@ -9,10 +48,17 @@
 
     var scale = 1800;
 
+    //    }
+
+
+    //    initializeMap();
+
+
     var translate = [mapWidth / 2, mapHeight / 2];
 
     /* Longitude u Latitude */
     var center = ([-15, 51.070843]);
+
 
     var projection = d3.geo.mercator()
         .center(center)
@@ -28,7 +74,7 @@
         .attr("width", mapWidth)
         .attr("height", mapHeight);
 
-    //    var g = svg.append("g");
+    var g = svg.append("g");
 
     /* Farbabstufungen für das Color Mapping */
 
@@ -37,7 +83,7 @@
 
     /* Color wird gepickt, min max Werte innerhalb Farbrange von var color  */
 
-    d3.csv("data/color-coding.csv", function (data) {
+    d3.csv("data/aut-productivity.csv", function (data) {
         color.domain([
             d3.min(data, function (d) {
                 return d.value;
@@ -47,7 +93,7 @@
             })
         ]);
 
-        /* Länder werden ausgelesen */
+        /* DACH Länder werden ausgelesen */
 
         d3.json("data/custom.geo.json", function (error, countries) {
             if (error) {
@@ -55,8 +101,6 @@
             }
 
             for (var i = 0; i < data.length; i++) {
-
-
 
                 var dataState = data[i].state;
 
@@ -76,25 +120,33 @@
 
             /* Color Mapping auf die einzelnen Länder */
 
-            var g = svg.append("g")
+            g.append("g")
                 .attr("id", "countries")
                 .selectAll("path")
                 .data(countries.features)
                 .enter()
                 .append("path")
                 .attr("d", path)
-                .on("click", clicked)
-                .style("fill", function (d) {
-                    var value = d.properties.value;
 
-                    if (value) {
-                        return color(value);
 
-                        /* Fallback auf Rot */
-                    } else {
-                        return "red";
-                    }
-                });
+
+            .on("click", clicked)
+
+
+
+
+
+            .style("fill", function (d) {
+                var value = d.properties.value;
+
+                if (value) {
+                    return color(value);
+
+                    /* Fallback auf Rot */
+                } else {
+                    return "red";
+                }
+            });
 
 
             /* Der Ländername wird in das jeweilige Land geschrieben */
@@ -116,13 +168,38 @@
                     return d.properties.dy;
                 })
                 .text(function (d) {
-                    //                    return d.properties.NAME;
+                    return d.properties.NAME;
 
                 });
+
 
         });
 
     });
+
+
+    /* Legende für die Daten */
+
+    var legend = d3.select('#legend')
+        .append('ul')
+        .attr('class', 'list-inline');
+
+
+    var formats = {
+        percent: d3.format('%')
+    };
+
+    var keys = legend.selectAll('li.key')
+        .data(color.range());
+
+    keys.enter().append('li')
+        .attr('class', 'key')
+        .style('border-top-color', String)
+        .text(function (d) {
+            var r = color.invertExtent(d);
+            return formats.percent(r[0]);
+        });
+
 
     /* TABELLEN DATA MAPPING */
 
@@ -130,7 +207,7 @@
 
     //    function showMüllChart()
 
-    d3.json("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/ten00108", function (error, chartdata) {
+    d3.json("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/de/ten00108", function (error, chartdata) {
         if (error) {
             console.log(error);
         }
@@ -146,34 +223,31 @@
                 }
         */
 
-
-
         // Eurostat abfragen per AJAX
+
+
+        // CHART A
 
         var abfallaufkommen_AUT = [chartdata.value[0],
                               chartdata.value[1],
                               chartdata.value[2],
                               chartdata.value[3],
                               chartdata.value[4],
-                                ];
-
+                                     ];
 
         var abfallaufkommen_GER = [chartdata.value[30],
                               chartdata.value[31],
                               chartdata.value[32],
                               chartdata.value[33],
-                              chartdata.value[34]
-                             ];
+                              chartdata.value[34],
+                                     ];
 
-        var abfallaufkommen_FR = [
-                              chartdata.value[70],
+        var abfallaufkommen_FR = [chartdata.value[70],
                               chartdata.value[71],
                               chartdata.value[72],
                               chartdata.value[73],
-                              chartdata.value[74]
-                             ];
-
-
+                              chartdata.value[74],
+                                     ];
 
 
         /*
@@ -195,9 +269,6 @@
         */
 
 
-
-
-
         /*
 
         for (var j = 30; j < 35; j++) {
@@ -207,89 +278,44 @@
         }
         */
 
-        var margin = {
-            top: 20,
-            right: 50,
-            bottom: 40,
-            left: 50
-        };
 
-        var barHeight = 50;
+        // CHART A, AUT
 
-
-        /* window.innerWidth -> makes the Chart responsive */
-        var chartWidth = (window.innerWidth * 0.90) - margin.left - margin.right;
-        //            chartHeight = (window.innerHeight / 3) - margin.top - margin.bottom;
-        var chartHeight = (barHeight * (abfallaufkommen_AUT.length * 1.25)) - margin.top - margin.bottom;
-
-        console.log(barHeight * abfallaufkommen_AUT.length);
+        var barHeight = 30;
 
         var barLength = d3.scale.linear()
             .domain([0, d3.max(abfallaufkommen_AUT)])
             //            .range([0, window.innerWidth - 130]);
-            .range([0, chartWidth]);
-        //             .range([0, window.innerWidth - 150]);
-
-        /* basic chart initializtation, slight X and Y offset, so the textlabels dont get cut off */
-
-        /* add margins so chart doesnt get cut off */
-
-        //        var chart = d3.select(".chart")
-        var chart = d3.select(".chart")
-            .attr("width", chartWidth + margin.left + margin.right)
-            .attr("height", chartHeight + margin.top + margin.bottom)
-            .append("g")
-            .attr("id", "barchart")
-            //            .attr("transform", "translate(" + (window.innerWidth / 16) + "," + (window.innerHeight / 3) + ")");
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        console.log(window.innerWidth / 12);
-        console.log(window.innerHeight / 12);
-        /* CHART MITTIG PLATZIEREN */
+            .range([0, window.innerWidth - 150]);
 
 
-        /* garbage data gets binded to g elements, slight X offset so the bars dont stick to the X Axis */
+        /* SVG CHART */
 
-        var bar = chart.selectAll("g")
-            .data(abfallaufkommen_AUT)
-            .enter()
-            .append("g")
-            .attr("transform", function (d, i) {
-                return "translate(5," + i * barHeight + ")";
-            });
+        var chart = d3.select(".chart");
+        /* so lassen! */
 
-
-        /* Charts receive bars, length relative to garbage values from ajax, height dynamic */
-
-        bar.append("rect")
-            .attr("width", function (d) {
-                return barLength(d) + "px";
-            })
-            .attr("height", barHeight - 10);
-
-        /* Bars Textvalue gets written to the end of the bars and text gets centered relative to the barheight */
+        chart.attr("width", "100%")
+            .attr("height", 2000)
+            //            .attr("height", barHeight * (abfallaufkommen_AUT.length));
 
 
 
-        var formatToMillion = d3.format(".3s");
 
-        bar.append("text")
-            .attr("x", function (d) {
+        /* X und Y Achse kreieren für den Chart */
 
-                return barLength(d) - 5;
-            })
-            .attr("y", barHeight / 2)
+        //Create the SVG Viewport selection
+        var xyAxisContainer = d3.select("#chart-container")
+            //            .style("background-color", "#e3e3e3")
+            .append("svg")
+            .attr("class", "xyaxis")
+            .style("width", "100%")
+            .style("height", 3000)
+            .style("margin-left", 5);
 
-        /* Mini Hack for the text to be more exactly centered */
+        $(".xyaxis").hide();
 
-        //        .attr("dy", ".23em")
+        //Create the Scale we will use for the Axis
 
-        /* Values get written into the bars and formatted into nicer numbers */
-
-        .text(function (d) {
-
-            return formatToMillion(d);
-
-        });
 
         var jahr_label = chartdata.dimension.time.category.label;
 
@@ -319,90 +345,109 @@
         //        
 
 
-        /* X und Y Achse kreieren für den Chart */
+
+
+
+
+
+
+        //    
+
+        //            .append("g")
+        //            .attr("transform", "translate(" + 40 + "," + 20 + ")")
+
 
         var xScale = d3.scale.linear()
             .domain([0, (d3.max(abfallaufkommen_AUT))])
-            .range([0, chartWidth]);
+            .range([0, window.innerWidth - 150]);
 
         var yScale = d3.scale.linear()
             .domain([jahr_label_array[0], jahr_label_array[jahr_label_array.length - 1]])
-            .range([barHeight * (abfallaufkommen_AUT.length), 0]);
+            .range([0, window.innerHeight - 150]);
 
-        /*  Create the Axis and set orientation of values */
-
-        var tickSize = (6, 7);
-        var tickPadding = 6;
-
-
-
+        //Create the Axis
         var xAxis = d3.svg.axis()
             .scale(xScale)
-            .orient("bottom")
-            .ticks(10, ".3s")
-            .tickSize(tickSize)
-            .tickPadding(tickPadding)
-            .outerTickSize(0);
+            .orient("bottom");
+        //                    .ticks(;
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
             .orient("left")
-            .ticks(jahr_label_array.length, "d")
-            /* (inner/outer size of ticks */
-            .tickSize(tickSize)
-            /*Distance between tickText and Tick*/
-            .tickPadding(tickPadding);
-
-        /* X Axis gets called and translated to be visible */
+            .ticks(jahr_label_array.length, '');
 
         chart.append("g")
-            /*.attr("transform", function () {
-                return "translate(5,500)";
-            })*/
-            .attr("transform", "translate(5," + (barHeight * (abfallaufkommen_AUT.length)) + ")")
+            .attr("transform", function () {
+                return "translate(49,810)";
+            })
             .call(xAxis);
 
-        /* Y Axis gets called and translated to be visible */
-
         chart.append("g")
-            .attr("transform", "translate(0," + (-10) + ")")
+            .attr("transform", function () {
+                return "translate(50,11)";
+            })
             .call(yAxis);
 
-
-        /* Chart receives name of dataset */
+        /* Chart bekommt Namen der Daten */
 
         d3.select("#chart-container")
             .append("div")
             .attr("id", "chartlabel")
-            .style("border", "2px solid black")
-            .style("background-color", "white")
             .text(chartdata.label);
 
-        /* Chart receives description of dataset */
+        $("#chartlabel").insertBefore(".chart");
 
-        d3.select("#chart-container").append("p")
-            .attr("id", "chartinfo")
-            .text(chartdata.extension.description);
+        $("#chartlabel").hide();
 
-        /* Chartlabel becomes :first-child of to be a headline */
 
-        $("#chartlabel, #chartinfo").insertBefore(".chart");
+        /*    var bar = chart.selectAll("g")
+            .data(abfallaufkommen_AUT)
+            .append("g")
+            .enter()
+            .attr("transform", function (d, i) {
+                return "translate(10," + i * barHeight + ")";
+            })
+            .attr("class", "responsive");      
+            */
 
-        /* Chartlabel gets hidden, because it only needs to be seen on click on A,B or C */
+        var bar = chart.append("g")
+            .data(abfallaufkommen_AUT)
+            .enter()
+            .attr("transform", function (d, i) {
+                return "translate(10," + i * barHeight + ")";
+            })
+            .attr("class", "responsive");
 
-        $("#chartlabel, #chartinfo").hide();
+        /* Chart bekommt Bars */
+
+        bar.append("rect")
+            .attr("width", function (d) {
+                return barLength(d) + "px";
+            })
+            .attr("height", barHeight - 5);
+
+        /* Bars bekommen Textwerte */
+
+        bar.append("text")
+            .attr("x", function (d) {
+
+                return barLength(d) - 3;
+            })
+            .attr("y", barHeight / 2)
+
+        /* Damit Text in Box drinnen ist und nicht zuweit oben */
+
+        .attr("dy", ".23em")
+
+        .text(function (d) {
+
+            return d;
+
+        });
+
+
 
     });
-
-
-    /*
-    !!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!
-    
-    !!!!!!!!!!!!!!!
-    */
-         $("#chart-container").insertBefore("#map-background");
-
 
 
     /* Togglen der Buttons A, B, C */
@@ -410,11 +455,8 @@
     $("#A").on("click", function () {
         //                        showMüllChart();
         //                    $("#chart-container").show(500);
-
-
         $(".chart").show(500);
         $("#chartlabel").show(500);
-        $("#chartinfo").show(500);
         $(".xyaxis").show(500);
 
         $("#red-box").hide(500);
@@ -429,7 +471,6 @@
 
         $(".chart").hide(500);
         $("#chartlabel").hide(500);
-        $("#chartinfo").hide(500);
         $(".xyaxis").hide(500);
         $("#green-box").hide(500);
 
@@ -442,7 +483,6 @@
 
         $(".chart").hide(500);
         $("#chartlabel").hide(500);
-        $("#chartinfo").hide(500);
         $(".xyaxis").hide(500);
         $("#red-box").hide(500);
     });
@@ -474,9 +514,6 @@
     }
 
 
-
-
-
     /* Map wird je nach User Device responsive bei load und bleibt es beim resizen des Fensters */
 
     d3.select(window)
@@ -487,11 +524,18 @@
 
 
     function sizeChange() {
-        d3.select("#countries").attr("transform", "scale(" + $("body").width() / 1700 + ")");
+        d3.select("g").attr("transform", "scale(" + $("body").width() / 1700 + ")");
         $("#map-background").height($("body").width() * 0.418);
 
-        d3.select("#barchart").attr("transform", "scale(" + $("body").width() / 1700 + ")");
-        $("#map-background").height($("body").width() * 0.418);
+
+
+        /* responsiveness bar chart not working correctly */
+
+        //            var translateit = ("transform", "translate(10," + i * 20 + ")");
+        //            var scaleit = ("transform", "scale(" + $("body").width() / 1700 + ")");
+
+        //            $(".chart").children()
+        //                .attr("transform", translateit + "" + scaleit);
 
     }
 
@@ -517,16 +561,6 @@
     /* Zoom STAGES */
 
     function clicked(d) {
-
-
-        /*
-        var newScreen = $(document.createElement("div"))
-            .attr("id", "newScreen")
-            .text("Hello");
-
-        $("body").append(newScreen);
-*/
-
         var x, y, scaleFactor;
 
         if (d && centered !== d) {
@@ -547,12 +581,12 @@
             centered = null;
         }
 
-        d3.select("#countries").selectAll("path")
+        g.selectAll("path")
             .classed("active", centered && function (d) {
                 return d === centered;
             });
 
-        d3.select("#countries").transition()
+        g.transition()
             /*zoom in und out dauer */
             .duration(1250)
 

@@ -18,20 +18,21 @@ body {
     width: 95vw;
     height: auto;
     margin: auto;
-    padding: 15px;
+    padding: 30px 15px 15px 15px;
 }
 
 #chart-container {
-    /* position: relative;
-    width: 95vw;
-    height: auto;
-    margin: auto;*/
+    position: absolute;
     padding: 15px;
-    /*    background-color: #c6cec6;*/
+    z-index: 888;
 }
 
 h1 {
     font-size: 2.6rem;
+    text-align: center;
+}
+
+#description {
     text-align: center;
 }
 
@@ -45,61 +46,28 @@ h1 {
     /*    margin-right: 0;*/
 }
 
-path {
-    stroke: #d86400;
-    stroke-width: 0.5px;
-}
-
-#home {
-    position: relative;
+#back {
+    position: fixed;
+    top: 200px;
     background-color: #605050;
     border-radius: 15px;
     min-width: 60px;
     min-height: 60px;
     z-index: 999;
-    top: 5%;
-    left: 3%;
+    /*    top: 15%;*/
+    /*    left: 3%;*/
 }
 
-.fa-home {
+.fa-arrow-left {
     color: white;
     padding: 10px;
 }
 
-#zoom_in {
-    position: relative;
-    background-color: #605050;
-    border-radius: 15px;
-    min-width: 60px;
-    min-height: 60px;
-    z-index: 999;
-    top: 15%;
-    left: 3%;
-}
 
-.fa-plus {
-    color: white;
-    padding: 10px 13px;
-}
-
-#zoom_out {
-    position: relative;
-    background-color: #605050;
-    border-radius: 15px;
-    min-width: 60px;
-    min-height: 60px;
-    z-index: 999;
-    top: 25%;
-    left: 3%;
-}
-
-.fa-minus {
-    color: white;
-    padding: 10px 13px;
-}
+/*
 
 #legend {
-    /*    position: absolute;*/
+        position: absolute;
     width: 10%;
     padding: 1.5rem 0 0 1rem;
     background-color: #605050;
@@ -120,31 +88,29 @@ li.key {
     color: white;
 }
 
-#buttons {
-    position: absolute;
-    top: 40px;
-}
+*/
 
 ul li {
-    margin-bottom: 20px;
     list-style-type: none;
+    margin-bottom: 20px;
 }
 
 #togglebuttons {
-    position: absolute;
+    position: fixed;
     display: block;
-    top: 60px;
-    left: 15%;
+    top: 300px;
+    left: 20px;
+    z-index: 999;
 }
 
 input[type="button"] {
-    padding: 10px 60px;
-    /*    border-right-color: beige;*/
+    width: 100%;
+    padding: 10px 20px;
     border-width: 2px;
     border-style: solid;
     border-color: #605050;
     border-collapse: collapse;
-    margin-right: 1px;
+    z-index: 999;
 }
 
 input[type="button"]:focus {
@@ -157,10 +123,12 @@ input[type="button"]:focus {
 
 .chart rect {
     fill: steelblue;
+    stroke: black;
+    stroke-width: 1px;
 }
 
 .chart text {
-    fill: yellow;
+    fill: black;
     font: 16px sans-serif;
     text-anchor: end;
 }
@@ -168,5 +136,38 @@ input[type="button"]:focus {
 #chartlabel {
     position: relative;
     font-size: 2.2rem;
-    margin: 0 0 5px 10px;
+    padding: 5px;
+    text-align: center;
+    /*    margin: 0 0 5px 10px;*/
+}
+
+#chartinfo {
+    text-align: center;
+}
+
+.tick line {
+    stroke: black;
+    stroke-width: 2px;
+}
+
+#countries path {
+    stroke: black;
+    stroke-width: 0.5px;
+}
+
+.domain {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 2px;
+}
+
+#newScreen {
+    min-height: 100vh;
+    min-width: 100vw;
+    position: fixed;
+    /*    z-index: 999;*/
+    top: 0;
+    left: 0;
+    background-color: red;
+    transition: min-width 5s;
 }
