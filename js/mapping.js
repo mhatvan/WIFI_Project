@@ -1,211 +1,245 @@
 (function () {
     "use strict";
 
-    /* Map wird erstellt */
 
-    var mapWidth = 500;
-    var mapHeight = 500;
-    var centered;
+    /* Map gets initialized */
 
-    var scale = 1800;
+    var mapInitialize = MapInitialize();
 
-    var translate = [mapWidth / 2, mapHeight / 2];
+    function MapInitialize() {
 
-    /* Longitude u Latitude */
-    var center = ([-15, 51.070843]);
+        var mapWidth = 500;
+        var mapHeight = 800;
+        var centered;
 
-    var projection = d3.geo.mercator()
-        .center(center)
-        .translate(translate)
-        .scale(scale);
+        /* Zoom*/
+        var scale = 1800;
 
-    // Pfad Generator
-    var path = d3.geo.path()
-        .projection(projection);
 
-    //    var svg = d3.select("#container").append("svg")
-    var svg = d3.select("#map-background")
-        .attr("width", mapWidth)
-        .attr("height", mapHeight);
+        var translate = [mapWidth / 2, mapHeight / 2];
 
-    //    var g = svg.append("g");
+        /* Longitude u Latitude */
+        var center = ([-13, 48.070843]);
 
-    /* Farbabstufungen für das Color Mapping */
+        var projection = d3.geo.mercator()
+            .center(center)
+            .translate(translate)
+            .scale(scale);
 
-    var color = d3.scale.quantize()
-        .range(["rgb(255, 255, 255)", "rgb(188,189,220)", "rgb(117,107,177)"]);
+        // path generator type
+        var path = d3.geo.path()
+            .projection(projection);
 
-    /* Color wird gepickt, min max Werte innerhalb Farbrange von var color  */
+        var svg = d3.select("#map-background")
+            .attr("width", mapWidth)
+            .attr("height", mapHeight);
 
-    d3.csv("data/color-coding.csv", function (data) {
-        color.domain([
+        return {
+            mapWidth: mapWidth,
+            mapHeight: mapHeight,
+            centered: centered,
+            scale: scale,
+            translate: translate,
+            center: center,
+            projection: projection,
+            path: path,
+            svg: svg
+        };
+
+    }
+
+    //    console.log(mapInitialize);
+
+    /* Color Mapping */
+
+    var colorMapping = ColorMapping();
+
+    function ColorMapping() {
+
+        /* Colorrange for mapping onto countries */
+
+        var color = d3.scale.quantize()
+            .range(["rgb(255, 255, 255)", "rgb(188,189,220)", "rgb(117,107,177)"]);
+
+        /* Color gets picked relative to min max value of var color  */
+
+        d3.csv("data/color-coding.csv", function (data) {
+            {
+                color.domain([
             d3.min(data, function (d) {
-                return d.value;
-            }),
+                        return d.value;
+                    }),
              d3.max(data, function (d) {
-                return d.value;
-            })
+                        return d.value;
+                    })
         ]);
 
-        /* Länder werden ausgelesen */
+                /* Countries get read out */
 
-        d3.json("data/custom.geo.json", function (error, countries) {
-            if (error) {
-                throw error;
-            }
-
-            for (var i = 0; i < data.length; i++) {
-
-
-
-                var dataState = data[i].state;
-
-                var dataValue = parseFloat(data[i].value);
-
-                for (var j = 0; j < countries.features.length; j++) {
-
-                    var jsonState = countries.features[j].properties.NAME;
-
-                    if (dataState === jsonState) {
-                        countries.features[j].properties.value = dataValue;
-                        break;
-
+                d3.json("data/custom.geo.json", function (error, countries) {
+                    if (error) {
+                        throw error;
                     }
-                }
-            }
 
-            /* Color Mapping auf die einzelnen Länder */
+                    for (var i = 0; i < data.length; i++) {
 
-            var g = svg.append("g")
-                .attr("id", "countries")
-                .selectAll("path")
-                .data(countries.features)
-                .enter()
-                .append("path")
-                .attr("d", path)
-                .on("click", clicked)
-                .style("fill", function (d) {
-                    var value = d.properties.value;
+                        var dataState = data[i].state;
 
-                    if (value) {
-                        return color(value);
+                        var dataValue = parseFloat(data[i].value);
 
-                        /* Fallback auf Rot */
-                    } else {
-                        return "red";
+                        for (var j = 0; j < countries.features.length; j++) {
+
+                            var jsonState = countries.features[j].properties.NAME;
+
+                            if (dataState === jsonState) {
+                                countries.features[j].properties.value = dataValue;
+                                break;
+
+                            }
+                        }
                     }
+
+                    /* Color Mapping onto the individual countries */
+
+                    var g = mapInitialize.svg.append("g")
+                        .attr("id", "countries")
+                        .style("z-index", "999")
+                        .selectAll("path")
+                        .data(countries.features)
+                        .enter()
+                        .append("path")
+                        .attr("d", mapInitialize.path)
+                        .attr("id", function (d) {
+
+                            return d.properties.NAME;
+                        })
+                        .on("click", DataMappingAndZoomStages)
+                        .style("fill", function (d) {
+                            var value = d.properties.value;
+
+                            if (value) {
+                                return color(value);
+
+                                /* Fallback auf Rot */
+                            } else {
+                                return "red";
+                            }
+                        });
+
+                    /* Countryname gets written into the country center */
+
+                    g.selectAll("text")
+                        .data(countries.features)
+                        .enter()
+                        .append("text")
+                        .style("fill", "#ea6e6e")
+                        .style("text-decoration", "underline")
+                        .attr("transform", function (d) {
+                            return "translate(" + mapInitialize.path.centroid(d) + ")";
+                        })
+                        .attr("dx", function (d) {
+                            return d.properties.dx;
+                        })
+                        .attr("dy", function (d) {
+                            return d.properties.dy;
+                        })
+                        .text(function (d) {
+                            //                            console.log(d.properties.NAME);
+                            return d.properties.NAME;
+                        });
+
+
                 });
 
-
-            /* Der Ländername wird in das jeweilige Land geschrieben */
-
-            g.selectAll("text")
-                .data(countries.features)
-                .enter()
-                .append("text")
-                .style("fill", "#ea6e6e")
-                .style("text-decoration", "underline")
-                .attr("transform", function (d) {
-                    //                    g.on("click", clicked(d));
-                    return "translate(" + path.centroid(d) + ")";
-                })
-                .attr("dx", function (d) {
-                    return d.properties.dx;
-                })
-                .attr("dy", function (d) {
-                    return d.properties.dy;
-                })
-                .text(function (d) {
-                    //                    return d.properties.NAME;
-
-                });
+            }
 
         });
 
-    });
+    }
 
-    /* TABELLEN DATA MAPPING */
+    /* Hide Interface buttons until Zoom stage 2*/
 
-    /* Abfallaufkommen nach Abfallkategorie */
+    $(".fa-arrow-left").hide();
 
-    //    function showMüllChart()
-
-    d3.json("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/ten00108", function (error, chartdata) {
-        if (error) {
-            console.log(error);
-        }
-
-        console.log(chartdata);
+    $("#A").hide();
+    $("#B").hide();
+    $("#C").hide();
 
 
+    /* Toggling of Data Buttons */
+
+    var abc = ABC();
+
+    function ABC() {
 
 
-        /*  for (var i = 0; i < 5; i++) {
-                    var newChartData = [chartdata.value[i]];
-                    console.log(newChartData);
+        $("input[type='button']").unbind("click").on("click", function () {
+
+            $("#chart-container").insertBefore("#map-background")
+                //                                .css("background-color", "white")
+                .show(500);
+
+            switch (this.id) {
+
+            case "A":
+
+                $("#waste-container").show(500);
+
+
+                $("#co2-container").hide();
+                $("#electricity-container").hide();
+
+                break;
+
+            case "B":
+
+                $("#co2-container").show(500);
+
+
+                $("#waste-container").hide();
+                $("#electricity-container").hide();
+
+                break;
+
+            case "C":
+
+                $("#electricity-container").show(500);
+
+                $("#waste-container").hide();
+                $("#co2-container").hide();
+
+                break;
+            }
+
+        });
+
+    }
+
+
+
+
+    function MakeAJAXRequest(fileName, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("get", fileName);
+        xhr.responseType = "json";
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    callback(xhr.response);
+                } else {
+                    alert("Error: " + xhr.status);
                 }
-        */
+            }
+        };
+        xhr.send();
+    }
+
+    function DataMappingAndZoomStages(d) {
 
 
+        /* DATA MAPPING */
 
-        // Eurostat abfragen per AJAX
-
-        var abfallaufkommen_AUT = [chartdata.value[0],
-                              chartdata.value[1],
-                              chartdata.value[2],
-                              chartdata.value[3],
-                              chartdata.value[4],
-                                ];
-
-
-        var abfallaufkommen_GER = [chartdata.value[30],
-                              chartdata.value[31],
-                              chartdata.value[32],
-                              chartdata.value[33],
-                              chartdata.value[34]
-                             ];
-
-        var abfallaufkommen_FR = [
-                              chartdata.value[70],
-                              chartdata.value[71],
-                              chartdata.value[72],
-                              chartdata.value[73],
-                              chartdata.value[74]
-                             ];
-
-
-
-
-        /*
-
-                function abfallaufkommen_AUT() {
-
-                    var abfallaufkommen_AUT = [];
-
-                    for (var i = 0; i < 5; i++) {
-
-                        chartdata.value[i];
-                        console.log(chartdata.value[i]);
-                        abfallaufkommen_AUT.push(chartdata.value[i]);
-                    }
-                    console.log(abfallaufkommen_AUT);
-                    return (abfallaufkommen_AUT);
-                }
-
-        */
-
-
-
-
-
-        /*
-
-        for (var j = 30; j < 35; j++) {
-
-            var abfallaufkommen_GER = [chartdata.value[j]];
-            console.log(abfallaufkommen_GER);
-        }
-        */
+        /* margin for chart positioning */
 
         var margin = {
             top: 20,
@@ -214,354 +248,645 @@
             left: 50
         };
 
-        var barHeight = 50;
-
+        var barHeight = 60;
 
         /* window.innerWidth -> makes the Chart responsive */
-        var chartWidth = (window.innerWidth * 0.90) - margin.left - margin.right;
-        //            chartHeight = (window.innerHeight / 3) - margin.top - margin.bottom;
-        var chartHeight = (barHeight * (abfallaufkommen_AUT.length * 1.25)) - margin.top - margin.bottom;
-
-        console.log(barHeight * abfallaufkommen_AUT.length);
-
-        var barLength = d3.scale.linear()
-            .domain([0, d3.max(abfallaufkommen_AUT)])
-            //            .range([0, window.innerWidth - 130]);
-            .range([0, chartWidth]);
-        //             .range([0, window.innerWidth - 150]);
-
-        /* basic chart initializtation, slight X and Y offset, so the textlabels dont get cut off */
-
-        /* add margins so chart doesnt get cut off */
-
-        //        var chart = d3.select(".chart")
-        var chart = d3.select(".chart")
-            .attr("width", chartWidth + margin.left + margin.right)
-            .attr("height", chartHeight + margin.top + margin.bottom)
-            .append("g")
-            .attr("id", "barchart")
-            //            .attr("transform", "translate(" + (window.innerWidth / 16) + "," + (window.innerHeight / 3) + ")");
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        console.log(window.innerWidth / 12);
-        console.log(window.innerHeight / 12);
-        /* CHART MITTIG PLATZIEREN */
-
-
-        /* garbage data gets binded to g elements, slight X offset so the bars dont stick to the X Axis */
-
-        var bar = chart.selectAll("g")
-            .data(abfallaufkommen_AUT)
-            .enter()
-            .append("g")
-            .attr("transform", function (d, i) {
-                return "translate(5," + i * barHeight + ")";
-            });
-
-
-        /* Charts receive bars, length relative to garbage values from ajax, height dynamic */
-
-        bar.append("rect")
-            .attr("width", function (d) {
-                return barLength(d) + "px";
-            })
-            .attr("height", barHeight - 10);
+        var chartWidth = (window.innerWidth * 0.80) - margin.left - margin.right;
+        var chartHeight = (barHeight * (5 * 1.25)) - margin.top - margin.bottom;
 
         /* Bars Textvalue gets written to the end of the bars and text gets centered relative to the barheight */
 
-
-
         var formatToMillion = d3.format(".3s");
 
-        bar.append("text")
-            .attr("x", function (d) {
-
-                return barLength(d) - 5;
-            })
-            .attr("y", barHeight / 2)
-
-        /* Mini Hack for the text to be more exactly centered */
-
-        //        .attr("dy", ".23em")
-
-        /* Values get written into the bars and formatted into nicer numbers */
-
-        .text(function (d) {
-
-            return formatToMillion(d);
-
-        });
-
-        var jahr_label = chartdata.dimension.time.category.label;
-
-        var jahr_label_array = [
-                                jahr_label[2004],
-                                jahr_label[2006],
-                                jahr_label[2008],
-                                jahr_label[2010],
-                                jahr_label[2012]
-                               ];
-        //
-        //        var jahr = [];
-        ////
-        //        for (var x = 2004; x < 2013; x+=2) {
-        //
-        //            chartdata.dimension.time.category.label[x];
-        //            console.log(chartdata.dimension.time.category.label[x]);
-        //            jahr.push(chartdata.value[x]);
-        //        }
-        ////
-        //        console.log(jahr);
-        //        //        return (jahr);
-        //
-        //        //         var jahr = chartdata.dimension.time.category.label;
-        //        console.log(chartdata.dimension.time.category.label[2004]);
-        //
-        //        
-
-
-        /* X und Y Achse kreieren für den Chart */
-
-        var xScale = d3.scale.linear()
-            .domain([0, (d3.max(abfallaufkommen_AUT))])
-            .range([0, chartWidth]);
-
-        var yScale = d3.scale.linear()
-            .domain([jahr_label_array[0], jahr_label_array[jahr_label_array.length - 1]])
-            .range([barHeight * (abfallaufkommen_AUT.length), 0]);
-
-        /*  Create the Axis and set orientation of values */
+        /* Tick spezification for x and y Axis of chart */
 
         var tickSize = (6, 7);
         var tickPadding = 6;
 
 
-
-        var xAxis = d3.svg.axis()
-            .scale(xScale)
-            .orient("bottom")
-            .ticks(10, ".3s")
-            .tickSize(tickSize)
-            .tickPadding(tickPadding)
-            .outerTickSize(0);
-
-        var yAxis = d3.svg.axis()
-            .scale(yScale)
-            .orient("left")
-            .ticks(jahr_label_array.length, "d")
-            /* (inner/outer size of ticks */
-            .tickSize(tickSize)
-            /*Distance between tickText and Tick*/
-            .tickPadding(tickPadding);
-
-        /* X Axis gets called and translated to be visible */
-
-        chart.append("g")
-            /*.attr("transform", function () {
-                return "translate(5,500)";
-            })*/
-            .attr("transform", "translate(5," + (barHeight * (abfallaufkommen_AUT.length)) + ")")
-            .call(xAxis);
-
-        /* Y Axis gets called and translated to be visible */
-
-        chart.append("g")
-            .attr("transform", "translate(0," + (-10) + ")")
-            .call(yAxis);
+        MakeAJAXRequest("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/ten00106", function (wasteData) {
 
 
-        /* Chart receives name of dataset */
+            var wasteData_AUT = [wasteData.value[0],
+                              wasteData.value[1],
+                              wasteData.value[2],
+                              wasteData.value[3],
+                              wasteData.value[4],
+                                ];
 
-        d3.select("#chart-container")
-            .append("div")
-            .attr("id", "chartlabel")
-            .style("border", "2px solid black")
-            .style("background-color", "white")
-            .text(chartdata.label);
+            var wasteData_GER = [wasteData.value[30],
+                              wasteData.value[31],
+                              wasteData.value[32],
+                              wasteData.value[33],
+                              wasteData.value[34]
+                             ];
 
-        /* Chart receives description of dataset */
+            var wasteData_FR = [
+                              wasteData.value[70],
+                              wasteData.value[71],
+                              wasteData.value[72],
+                              wasteData.value[73],
+                              wasteData.value[74]
+                             ];
 
-        d3.select("#chart-container").append("p")
-            .attr("id", "chartinfo")
-            .text(chartdata.extension.description);
+            var wasteDataCurrent;
 
-        /* Chartlabel becomes :first-child of to be a headline */
+            if (d.properties.NAME === "Austria") {
+                wasteDataCurrent = wasteData_AUT;
+            }
+            if (d.properties.NAME === "Germany") {
+                wasteDataCurrent = wasteData_GER;
+            }
 
-        $("#chartlabel, #chartinfo").insertBefore(".chart");
+            if (d.properties.NAME === "France") {
+                wasteDataCurrent = wasteData_FR;
+            }
 
-        /* Chartlabel gets hidden, because it only needs to be seen on click on A,B or C */
+            var wasteBarLength = d3.scale.linear()
+                .domain([0, d3.max(wasteDataCurrent)])
+                .range([0, chartWidth]);
 
-        $("#chartlabel, #chartinfo").hide();
+            /* basic chart initializtation, slight X and Y offset, so the textlabels dont get cut off */
 
-    });
+            /* add margins so chart doesnt get cut off */
 
+            //        var chart = d3.select(".chart")
+            var wasteChart = d3.select("#wasteChart")
+                .attr("width", chartWidth + margin.left + margin.right)
+                .attr("height", chartHeight + margin.top + margin.bottom)
+                .append("g")
+                .attr("id", "barchart")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    /*
-    !!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!
-    
-    !!!!!!!!!!!!!!!
-    */
-         $("#chart-container").insertBefore("#map-background");
+            /* garbage data gets binded to g elements, slight X offset so the bars dont stick to the X Axis */
 
+            var wasteBar = wasteChart.selectAll("g")
+                .data(wasteDataCurrent)
+                .enter()
+                .append("g")
+                .attr("transform", function (d, i) {
+                    return "translate(5," + i * barHeight + ")";
+                });
 
+            /* Charts receive bars, length relative to garbage values from ajax, height dynamic */
 
-    /* Togglen der Buttons A, B, C */
-
-    $("#A").on("click", function () {
-        //                        showMüllChart();
-        //                    $("#chart-container").show(500);
-
-
-        $(".chart").show(500);
-        $("#chartlabel").show(500);
-        $("#chartinfo").show(500);
-        $(".xyaxis").show(500);
-
-        $("#red-box").hide(500);
-        $("#green-box").hide(500);
-    });
-
-    $("#B").on("click", function () {
-
-        //            showDummy();
-        //            $("#chart-container").show(500);
-        $("#red-box").show(500);
-
-        $(".chart").hide(500);
-        $("#chartlabel").hide(500);
-        $("#chartinfo").hide(500);
-        $(".xyaxis").hide(500);
-        $("#green-box").hide(500);
-
-    });
-
-    $("#C").on("click", function () {
-        //            showDummy();
-        //            $("#chart-container").show(500);
-        $("#green-box").show(500);
-
-        $(".chart").hide(500);
-        $("#chartlabel").hide(500);
-        $("#chartinfo").hide(500);
-        $(".xyaxis").hide(500);
-        $("#red-box").hide(500);
-    });
-
-    //    function showDummy() {
-    d3.select("#chart-container").append("div")
-        .style("width", "100%")
-        .style("height", "100px")
-        .style("background-color", "red")
-        .attr("id", "red-box");
-    //    }
-
-    d3.select("#chart-container").append("div")
-        .style("width", "100%")
-        .style("height", "100px")
-        .style("background-color", "green")
-        .attr("id", "green-box");
+            wasteBar.append("rect")
+                .attr("width", function (d) {
+                    return wasteBarLength(d) + "px";
+                })
+                .attr("height", barHeight - 10);
 
 
+            wasteBar.append("text")
+                .attr("x", function (d) {
 
-    hideElements();
+                    return wasteBarLength(d) - 5;
+                })
+                .attr("y", barHeight / 2)
 
-    function hideElements() {
-        //        $("#chart-container").hide();
-        $("#green-box").hide();
-        $("#red-box").hide();
-        $(".chart").hide();
-        $(".x-axis-A").hide();
-    }
+            /* Mini Hack for the text to be more exactly centered */
 
+            //        .attr("dy", ".23em")
 
+            /* Values get written into the bars and formatted into nicer numbers */
 
+            .text(function (d) {
 
+                return formatToMillion(d);
 
-    /* Map wird je nach User Device responsive bei load und bleibt es beim resizen des Fensters */
-
-    d3.select(window)
-        .on("load", sizeChange);
-
-    d3.select(window)
-        .on("resize", sizeChange);
-
-
-    function sizeChange() {
-        d3.select("#countries").attr("transform", "scale(" + $("body").width() / 1700 + ")");
-        $("#map-background").height($("body").width() * 0.418);
-
-        d3.select("#barchart").attr("transform", "scale(" + $("body").width() / 1700 + ")");
-        $("#map-background").height($("body").width() * 0.418);
-
-    }
-
-
-
-
-
-    /* Österreich Map wird draggable und zoomable innerhalb des containers */
-
-    /*
-        var zoom = d3.behavior.zoom()
-            .on("zoom", function () {
-                g.attr("transform", "translate(" +
-                    d3.event.translate.join(",") + ")scale(" + d3.event.scale + ")");
-                g.selectAll("path")
-                    .attr("d", path.projection(projection));
             });
 
-        svg.call(zoom);
-    */
+            /* Text for Y-Axis */
+
+            var wasteYearLabel = wasteData.dimension.time.category.label;
+
+            var wasteYearLabelArray = [
+                                wasteYearLabel[2004],
+                                wasteYearLabel[2006],
+                                wasteYearLabel[2008],
+                                wasteYearLabel[2010],
+                                wasteYearLabel[2012]
+                               ];
+
+            var xScale = d3.scale.linear()
+                .domain([0, (d3.max(wasteDataCurrent))])
+                .range([0, chartWidth]);
+
+            var yScale = d3.scale.linear()
+                .domain([wasteYearLabelArray[0], wasteYearLabelArray[wasteYearLabelArray.length - 1]])
+                .range([(barHeight * 0.95) * (wasteDataCurrent.length), 30]);
+
+            /*  Create the Axis and set orientation of values */
+
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom")
+                .ticks(10, ".3s")
+                .tickSize(tickSize)
+                .tickPadding(tickPadding)
+                .outerTickSize(0);
+
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left")
+                .ticks(wasteYearLabelArray.length, "d")
+                /* (inner/outer size of ticks */
+                .tickSize(tickSize)
+                /*Distance between tickText and Tick*/
+                .tickPadding(tickPadding);
+
+            /* X Axis gets called and translated to be visible */
+
+            wasteChart.append("g")
+                .attr("transform", "translate(5," + (barHeight * (wasteDataCurrent.length)) + ")")
+                .call(xAxis);
+
+            /* Y Axis gets called and translated to be visible */
+
+            wasteChart.append("g")
+                .attr("transform", "translate(0," + (-10) + ")")
+                .call(yAxis);
+
+            /* Chart receives name of dataset */
+
+            d3.select("#waste-container")
+                .append("div")
+                .attr("id", "wasteLabel")
+                .attr("class", "Label")
+                .style("border", "2px solid black")
+                .style("background-color", "white")
+                .text(wasteData.label);
+
+            /* Chart receives description of dataset */
+
+            d3.select("#waste-container")
+                .append("p")
+                .attr("id", "wasteInfo")
+                .attr("class", "Info")
+                .text(wasteData.extension.description);
+
+            /* wasteLabel becomes :first-child of to be a headline */
+
+            $("#wasteLabel, #wasteInfo").insertBefore("#wasteChart");
 
 
-    /* Zoom STAGES */
-
-    function clicked(d) {
+        });
 
 
-        /*
-        var newScreen = $(document.createElement("div"))
-            .attr("id", "newScreen")
-            .text("Hello");
+        MakeAJAXRequest("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/tsdtr410", function (co2Data) {
 
-        $("body").append(newScreen);
-*/
+            var co2Data_AUT = [co2Data.value[0],
+                              co2Data.value[1],
+                              co2Data.value[2],
+                              co2Data.value[3],
+                              co2Data.value[4],
+                                ];
+
+            var co2Data_GER = [co2Data.value[30],
+                              co2Data.value[31],
+                              co2Data.value[32],
+                              co2Data.value[33],
+                              co2Data.value[34]
+                             ];
+
+            var co2Data_FR = [
+                              co2Data.value[70],
+                              co2Data.value[71],
+                              co2Data.value[72],
+                              co2Data.value[73],
+                              co2Data.value[74]
+                             ];
+
+
+            var co2DataCurrent;
+
+            if (d.properties.NAME === "Austria") {
+
+                co2DataCurrent = co2Data_AUT;
+            }
+            if (d.properties.NAME === "Germany") {
+                co2DataCurrent = co2Data_GER;
+            }
+
+            if (d.properties.NAME === "France") {
+                co2DataCurrent = co2Data_FR;
+            }
+
+            var co2BarLength = d3.scale.linear()
+                .domain([0, d3.max(co2DataCurrent)])
+                .range([0, chartWidth]);
+
+            /* basic chart initializtation, slight X and Y offset, so the textlabels dont get cut off */
+
+            /* add margins so chart doesnt get cut off */
+
+            var co2Chart = d3.select("#co2Chart")
+                .attr("width", chartWidth + margin.left + margin.right)
+                .attr("height", chartHeight + margin.top + margin.bottom)
+                .append("g")
+                .attr("id", "barchart")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            /* garbage data gets binded to g elements, slight X offset so the bars dont stick to the X Axis */
+
+            var co2Bar = co2Chart.selectAll("g")
+                .data(co2DataCurrent)
+                .enter()
+                .append("g")
+                .attr("transform", function (d, i) {
+                    return "translate(5," + i * barHeight + ")";
+                });
+
+
+            /* Charts receive bars, length relative to garbage values from ajax, height dynamic */
+
+            co2Bar.append("rect")
+                .attr("width", function (d) {
+                    return co2BarLength(d) + "px";
+                })
+                .attr("height", barHeight - 10);
+
+            co2Bar.append("text")
+                .attr("x", function (d) {
+
+                    return co2BarLength(d) - 5;
+                })
+                .attr("y", barHeight / 2)
+
+            /* Mini Hack for the text to be more exactly centered */
+
+            //        .attr("dy", ".23em")
+
+            /* Values get written into the bars and formatted into nicer numbers */
+
+            .text(function (d) {
+
+                return formatToMillion(d);
+
+            });
+
+
+            /* Text for Y-Axis */
+
+            var co2YearLabel = co2Data.dimension.time.category.label;
+
+            var co2YearLabelArray = [
+                                co2YearLabel[2004],
+                                co2YearLabel[2006],
+                                co2YearLabel[2008],
+                                co2YearLabel[2010],
+                                co2YearLabel[2012]
+                               ];
+
+            var xScale = d3.scale.linear()
+                .domain([0, (d3.max(co2DataCurrent))])
+                .range([0, chartWidth]);
+
+            var yScale = d3.scale.linear()
+                .domain([co2YearLabelArray[0], co2YearLabelArray[co2YearLabelArray.length - 1]])
+                .range([(barHeight * 0.95) * (co2DataCurrent.length), 30]);
+
+            /*  Create the Axis and set orientation of values */
+
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom")
+                .ticks(10, ".3s")
+                .tickSize(tickSize)
+                .tickPadding(tickPadding)
+                .outerTickSize(0);
+
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left")
+                .ticks(co2YearLabelArray.length, "d")
+                /* (inner/outer size of ticks */
+                .tickSize(tickSize)
+                /*Distance between tickText and Tick*/
+                .tickPadding(tickPadding);
+
+            /* X Axis gets called and translated to be visible */
+
+            co2Chart.append("g")
+                .attr("transform", "translate(5," + (barHeight * (co2DataCurrent.length)) + ")")
+                .call(xAxis);
+
+            /* Y Axis gets called and translated to be visible */
+
+            co2Chart.append("g")
+                .attr("transform", "translate(0," + (-10) + ")")
+                .call(yAxis);
+
+            /* Chart receives name of dataset */
+            //
+            d3.select("#co2-container")
+                .append("div")
+                .attr("id", "co2Label")
+                .attr("class", "Label")
+                .style("border", "2px solid black")
+                .style("background-color", "white")
+                .text(co2Data.label);
+
+            /* Chart receives description of dataset */
+            //
+            d3.select("#co2-container")
+                .append("p")
+                .attr("id", "co2Info")
+                .attr("class", "Info")
+                .text(co2Data.extension.description);
+
+
+            /* co2Label becomes :first-child of to be a headline */
+
+            $("#co2Label, #co2Info").insertBefore("#co2Chart");
+
+        });
+
+
+        MakeAJAXRequest("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/nrg_113a", function (electricityData) {
+
+            var electricityData_AUT = [electricityData.value[45],
+                              electricityData.value[46],
+                              electricityData.value[47],
+                              electricityData.value[48],
+                              electricityData.value[49],
+                                ];
+
+            var electricityData_GER = [electricityData.value[45],
+                              electricityData.value[46],
+                              electricityData.value[47],
+                              electricityData.value[48],
+                              electricityData.value[49],
+                                ];
+
+            var electricityData_FR = [electricityData.value[45],
+                              electricityData.value[46],
+                              electricityData.value[47],
+                              electricityData.value[48],
+                              electricityData.value[49],
+                                ];
+
+            var electricityDataCurrent;
+
+            if (d.properties.NAME === "Austria") {
+                electricityDataCurrent = electricityData_AUT;
+            }
+            if (d.properties.NAME === "Germany") {
+
+                electricityDataCurrent = electricityData_GER;
+            }
+
+            if (d.properties.NAME === "France") {
+                electricityDataCurrent = electricityData_FR;
+            }
+
+            var electricityBarLength = d3.scale.linear()
+                .domain([0, d3.max(electricityData_AUT)])
+                .range([0, chartWidth]);
+
+            /* basic chart initializtation, slight X and Y offset, so the textlabels dont get cut off */
+
+            /* add margins so chart doesnt get cut off */
+
+            var electricityChart = d3.select("#electricityChart")
+                .attr("width", chartWidth + margin.left + margin.right)
+                .attr("height", chartHeight + margin.top + margin.bottom)
+                .append("g")
+                .attr("id", "barchart")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            /* garbage data gets binded to g elements, slight X offset so the bars dont stick to the X Axis */
+
+            var electricityBar = electricityChart.selectAll("g")
+                .data(electricityData_AUT)
+                .enter()
+                .append("g")
+                .attr("transform", function (d, i) {
+                    return "translate(5," + i * barHeight + ")";
+                });
+
+            /* Charts receive bars, length relative to garbage values from ajax, height dynamic */
+
+            electricityBar.append("rect")
+                .attr("width", function (d) {
+                    return electricityBarLength(d) + "px";
+                })
+                .attr("height", barHeight - 10);
+
+            electricityBar.append("text")
+                .attr("x", function (d) {
+
+                    return electricityBarLength(d) - 5;
+                })
+                .attr("y", barHeight / 2)
+
+            /* Mini Hack for the text to be more exactly centered */
+
+            //        .attr("dy", ".23em")
+
+            /* Values get written into the bars and formatted into nicer numbers */
+
+            .text(function (d) {
+
+                return formatToMillion(d);
+
+            });
+
+
+            /* Text for Y-Axis */
+
+            var electricityYearLabel = electricityData.dimension.time.category.label;
+
+            var electricityYearLabelArray = [
+                                electricityYearLabel[2004],
+                                electricityYearLabel[2006],
+                                electricityYearLabel[2008],
+                                electricityYearLabel[2010],
+                                electricityYearLabel[2012]
+                               ];
+
+            var xScale = d3.scale.linear()
+                .domain([0, (d3.max(electricityData_AUT))])
+                .range([0, chartWidth]);
+
+            var yScale = d3.scale.linear()
+                .domain([electricityYearLabelArray[0], electricityYearLabelArray[electricityYearLabelArray.length - 1]])
+                .range([(barHeight * 0.95) * (electricityData_AUT.length), 30]);
+
+            /*  Create the Axis and set orientation of values */
+
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom")
+                .ticks(10, ".3s")
+                .tickSize(tickSize)
+                .tickPadding(tickPadding)
+                .outerTickSize(0);
+
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left")
+                .ticks(electricityYearLabelArray.length, "d")
+                /* (inner/outer size of ticks */
+                .tickSize(tickSize)
+                /*Distance between tickText and Tick*/
+                .tickPadding(tickPadding);
+
+            /* X Axis gets called and translated to be visible */
+
+            electricityChart.append("g")
+                .attr("transform", "translate(5," + (barHeight * (electricityData_AUT.length)) + ")")
+                .call(xAxis);
+
+            /* Y Axis gets called and translated to be visible */
+
+            electricityChart.append("g")
+                .attr("transform", "translate(0," + (-10) + ")")
+                .call(yAxis);
+
+            /* Chart receives name of dataset */
+            //
+            d3.select("#electricity-container")
+                .append("div")
+                .attr("id", "electricityLabel")
+                .attr("class", "Label")
+                .style("border", "2px solid black")
+                .style("background-color", "white")
+                .text(electricityData.label);
+
+            /* Chart receives description of dataset */
+            //
+            d3.select("#electricity-container")
+                .append("p")
+                .attr("id", "electricityInfo")
+                .attr("class", "Info")
+                .text(electricityData.dimension.unit.category.label.MW);
+
+            /* electricityLabel becomes :first-child of to be a headline */
+
+            $("#electricityLabel, #electricityInfo").insertBefore("#electricityChart");
+
+            //            $("#chart-container").insertBefore("#map-background");
+            //            $("#electricity-container").insertBefore("#chart-label");
+
+            /* Chartlabel gets hidden, because it only needs to be seen on click on A,B or C */
+
+            //            $("#electricityLabel, #electricityInfo").hide();
+
+        });
+
+        /* Zoom STAGES */
 
         var x, y, scaleFactor;
 
-        if (d && centered !== d) {
-            var centroid = path.centroid(d);
+
+        if (d && mapInitialize.centered !== d) {
+            var centroid = mapInitialize.path.centroid(d);
             x = centroid[0];
             y = centroid[1];
-            scaleFactor = 20;
-            centered = d;
+            scaleFactor = 25;
+            mapInitialize.centered = d;
 
+            $(".fa-arrow-left").show(500);
+            $("#A").show(500);
+            $("#B").show(500);
+            $("#C").show(500);
 
-
-            /* rauszoom: wieder reset auf die startwerte */
 
         } else {
-            x = mapWidth / 2;
-            y = mapHeight / 2;
-            scaleFactor = 1;
-            centered = null;
+
+            /* zoom out: reset to initial values */
+
+            x = mapInitialize.mapWidth / 2;
+            y = mapInitialize.mapHeight / 2;
+
+            scaleFactor = 0.8;
+            mapInitialize.center = ([-15, 51.070843]);
+            mapInitialize.centered = null;
+
+
+            $("#A").hide(500);
+            $("#B").hide(500);
+            $("#C").hide(500);
+
+            $(".fa-arrow-left").hide(500);
+            $("#chart-container").hide(500);
+
+
+            $(".Label").remove();
+            $(".Info").remove();
+            $("#barchart").remove();
+
+
         }
 
+        /* Back Button activates zoom back to Zoomstage 1*/
+
+        //    $(".fa-arrow-left").on("click", function () {
+        //        $("body").css("background-color", "red");
+        //    });
+
+
+        //        $(".fa-arrow-left").on("click", function () {
+
+        //          
+
+        //            scaleFactor = sizeChange.responsiveMap[0][0].transform.animVal[0].matrix.a;
+
+        //        });
+
+
         d3.select("#countries").selectAll("path")
-            .classed("active", centered && function (d) {
-                return d === centered;
+            .classed("active", mapInitialize.centered && function (d) {
+                return d === mapInitialize.centered;
             });
 
         d3.select("#countries").transition()
-            /*zoom in und out dauer */
-            .duration(1250)
 
-        .attr("transform", "translate(" + mapWidth / 2 + "," + mapHeight / 2 + ")scale(" + scaleFactor + ")translate(" + -x * 0.99 + "," + -y + ")")
+        /* duration of zoom in and zoom out */
+        .duration(900)
 
-        .style("stroke-width", 1.5 / scaleFactor + "px");
+        .attr("transform", "translate(" + mapInitialize.mapWidth / 2 + "," + mapInitialize.mapHeight / 2 + ")scale(" + scaleFactor + ")translate(" + -x + "," + -y + ")");
+
     }
 
 
+    /* Hacks for responsiveness on load and on resize */
 
+    Responsiveness();
+
+    function Responsiveness() {
+
+        d3.select(window)
+            .on("load", SizeChange);
+
+        d3.select(window)
+            .on("resize", SizeChange);
+
+
+        function SizeChange() {
+
+            // responsive scale is a big problem
+
+            d3.select("#countries").attr("transform", "scale(" + $("body").width() / 1800 + ")");
+
+
+            $("#map-background").height($("body").width() * 0.42);
+
+            //        var scaleValue = responsiveMap[0][0].transform.animVal[0].matrix.a;
+
+            /*
+                    d3.select("#barchart").attr("transform", "scale(" + $("body").width() / 1450 + ")" + " " + "translate(" + 50 + "," + 20 + ")");
+                    $(".chart").height($("#map-background").width() * 0.42);*/
+
+            //                    if (window.innerWidth < 1200){
+            //                        WasteChart.xAxis.tickValues(5);
+            //                    }
+
+        }
+    }
+
+
+    //    console.log(sizeChange.responsiveMap[0][0].transform.animVal[0].matrix.a);
 
 }());

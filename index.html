@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <title> WIFI Project </title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="css/style.css">
@@ -18,32 +20,32 @@
 <body>
 
     <h1><u>WIFI Project</u></h1>
-    <p id="description"> Click on a Country to zoom in and view data! </p>
+    <p id="description"> Click on a Country to zoom in and view environment data! </p>
 
 
     <div class="map-container">
         <svg id="map-background">
-            <ul id="button">
-                <li id="back">
-                    <i class="fa fa-arrow-left fa-3x" aria-hidden="true"></i>
-                </li>
-            </ul>
+
+            <div id="back" class="fa fa-arrow-left fa-3x" aria-hidden="true">
+
+            </div>
+
 
             <div id="togglebuttons">
                 <ul>
                     <li>
-                        <input type="button" value="waste" id="A">
+                        <input type="button" value="Waste" id="A">
                     </li>
                     <li>
-                        <input type="button" value="co2" id="B"> </li>
+                        <input type="button" value="CO2" id="B">
+                    </li>
                     <li>
-                        <input type="button" value="water usage" id="C"> </li>
+                        <input type="button" value="Electricity" id="C">
+                    </li>
 
                 </ul>
 
             </div>
-
-            <div id="legend"></div>
 
             <!--  TRENNER -->
 
@@ -51,9 +53,29 @@
 
         <div id="chart-container">
 
-            <svg class="chart">
+            <div id="waste-container">
 
-            </svg>
+                <svg id="wasteChart">
+
+                </svg>
+
+            </div>
+
+            <div id="co2-container">
+
+                <svg id="co2Chart">
+
+                </svg>
+
+            </div>
+            
+            <div id="electricity-container">
+
+                <svg id="electricityChart">
+
+                </svg>
+
+            </div>
         </div>
 
     </div>
@@ -67,7 +89,7 @@
     <script src="https://d3js.org/topojson.v0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-    <script src="js/mapping.js"></script>
+    <script src="js/mapping%20-%20Kopie.js"></script>
 
 </body>
 
