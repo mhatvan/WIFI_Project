@@ -1,5 +1,33 @@
- (function () {
-     "use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: mapping.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: mapping.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// (function () {
+//     "use strict";
 
      var mapInitialize = MapInitialize();
 
@@ -83,14 +111,14 @@
                          throw error;
                      }
 
-                     for (var i = 0; i < data.length; i++) {
+                     for (var i = 0; i &lt; data.length; i++) {
 
                          /* iterate over Austria, Germany and France */
                          var dataState = data[i].state;
 
                          var dataValue = parseFloat(data[i].value);
 
-                         for (var j = 0; j < countries.features.length; j++) {
+                         for (var j = 0; j &lt; countries.features.length; j++) {
 
                              var jsonState = countries.features[j].properties.NAME;
 
@@ -181,7 +209,7 @@
 
          var x, y, scaleFactor;
 
-         if (d && mapInitialize.centered !== d) {
+         if (d &amp;&amp; mapInitialize.centered !== d) {
 
              var centroid = mapInitialize.path.centroid(d);
              x = centroid[0];
@@ -255,7 +283,7 @@
          //        });
 
          d3.select("#countries").selectAll("path")
-             .classed("active", mapInitialize.centered && function (d) {
+             .classed("active", mapInitialize.centered &amp;&amp; function (d) {
                  return d === mapInitialize.centered;
              });
 
@@ -330,16 +358,15 @@
                  $('#B').attr("disabled", false);
 
                  break;
-             }
 
+             case "back":
 
-             $("#back").on("click", function () {
                  $("#co2-container").hide(500);
                  $("#waste-container").hide(500);
                  $("#electricity-container").hide(500);
-                 $("#chart-container").hide(500);
-             });
-
+                     
+                 break;
+             }
          });
      }
 
@@ -443,13 +470,13 @@
              /* add margins so chart doesnt get cut off */
 
 
-             var wasteChart = d3.select("#wasteChart")
-                 .attr("width", chartWidth + margin.left + margin.right)
-                 .attr("height", chartHeight + margin.top + margin.bottom)
-                 .append("g")
-                 .attr("id", "barchart")
-                 .attr("class", "chart")
-                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                          var wasteChart = d3.select("#wasteChart")
+                              .attr("width", chartWidth + margin.left + margin.right)
+                              .attr("height", chartHeight + margin.top + margin.bottom)
+                              .append("g")
+                              .attr("id", "barchart")
+                              .attr("class", "chart")
+                              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
              /*
              
@@ -942,7 +969,7 @@
          });
      }
 
-     //     Responsiveness();
+     //Responsiveness();
 
      /**
       * Hacks for responsiveness on load and on resize
@@ -970,7 +997,7 @@
                      d3.select("#barchart").attr("transform", "scale(" + $("body").width() / 1450 + ")" + " " + "translate(" + 50 + "," + 20 + ")");
                      $(".chart").height($("#map-background").width() * 0.42);*/
 
-             //                    if (window.innerWidth < 1200){
+             //                    if (window.innerWidth &lt; 1200){
              //                        WasteChart.xAxis.tickValues(5);
              //                    }
          }
@@ -981,4 +1008,26 @@
      /* hide chart-container on page load */
      $("#chart-container").hide();
 
- }());
+// }());</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ABC.html">ABC</a></li><li><a href="ColorMapping.html">ColorMapping</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="MakeAJAXRequest.html">MakeAJAXRequest</a></li><li><a href="MapInitialize.html">MapInitialize</a></li><li><a href="Responsiveness.html">Responsiveness</a></li><li><a href="ZoomStages.html">ZoomStages</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Aug 30 2016 23:10:27 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

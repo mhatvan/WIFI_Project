@@ -330,16 +330,15 @@
                  $('#B').attr("disabled", false);
 
                  break;
-             }
 
+             case "back":
 
-             $("#back").on("click", function () {
                  $("#co2-container").hide(500);
                  $("#waste-container").hide(500);
                  $("#electricity-container").hide(500);
-                 $("#chart-container").hide(500);
-             });
 
+                 break;
+             }
          });
      }
 
@@ -397,7 +396,7 @@
          var tickSize = (6, 7);
          var tickPadding = 6;
 
-         MakeAJAXRequest("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/ten00106", function (wasteData) {
+         MakeAJAXRequest("data/waste.json", function (wasteData) {
 
              var wasteData_AUT = [wasteData.value[0],
                               wasteData.value[1],
@@ -441,7 +440,6 @@
              /* basic chart initializtation, slight X and Y offset, so the textlabels dont get cut off */
 
              /* add margins so chart doesnt get cut off */
-
 
              var wasteChart = d3.select("#wasteChart")
                  .attr("width", chartWidth + margin.left + margin.right)
@@ -588,7 +586,7 @@
 
          });
 
-         MakeAJAXRequest("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/tsdtr410", function (co2Data) {
+         MakeAJAXRequest("data/co2.json", function (co2Data) {
 
              var co2Data_AUT = [co2Data.value[14],
                               co2Data.value[16],
@@ -764,7 +762,7 @@
              $("#co2Label, #co2Info").insertBefore("#co2Chart");
          });
 
-         MakeAJAXRequest("https://ec.europa.eu/eurostat/wdds/rest/data/v2.1/json/en/nrg_113a", function (electricityData) {
+         MakeAJAXRequest("data/electricity.json", function (electricityData) {
 
              var electricityData_AUT = [electricityData.value[41],
                               electricityData.value[43],
@@ -942,7 +940,7 @@
          });
      }
 
-     //     Responsiveness();
+     //Responsiveness();
 
      /**
       * Hacks for responsiveness on load and on resize

@@ -30,22 +30,32 @@ body {
 #chart-container {
     display: none;
     position: absolute;
-    padding: 10px;
+    padding: 20px;
     z-index: 888;
     right: 0;
     left: 0;
     margin-left: 170px;
     margin-right: 40px;
-    margin-top: 5px;
+    margin-top: 75px;
+    /*
+    background-color: rgba(255, 255, 255, 0.75);
+    transition: background-color 1000ms linear;
+*/
 }
 
 h1 {
+    display: block;
     font-size: 2.6rem;
     text-align: center;
 }
 
 p {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
+}
+
+p.SubInfo {
+    text-transform: capitalize;
+    text-align: center;
 }
 
 #description {
@@ -53,13 +63,12 @@ p {
     margin-bottom: 20px;
 }
 
-
 .fa-arrow-left {
     position: fixed;
     z-index: 999;
     color: white;
     padding: 10px;
-    top: 140px;
+    top: 370px;
     left: 50px;
     background-color: #605050;
     border-radius: 15px;
@@ -69,16 +78,18 @@ p {
 #togglebuttons {
     position: fixed;
     display: block;
-    top: 240px;
+    top: 470px;
     left: 30px;
     z-index: 999;
 }
 
 input[type="button"] {
+    background-color: #ffffff;
+    color: #000;
     cursor: pointer;
     width: 100%;
     padding: 10px 20px;
-    border-width: 2px;
+    border-width: 3px;
     border-style: solid;
     border-color: #605050;
     border-collapse: collapse;
@@ -86,10 +97,11 @@ input[type="button"] {
     margin-bottom: 5px;
 }
 
-input[type="button"]:focus {
-    background-color: #605050;
-    border-color: rgba(255, 255, 255, 0.5);
+input[type="button"]:disabled {
+    background-color: green;
     color: rgba(255, 255, 255, 1);
+    cursor: default;
+    border-color: rgba(255, 255, 255, 0.5);
     transition: color 1s;
     transition: background-color 1s;
 }
@@ -134,7 +146,7 @@ input[type="button"]:focus {
 }
 
 #electricity-container rect {
-    fill: yellow;
+    fill: #e5e55b;
     stroke: black;
     stroke-width: 1px;
 }
@@ -150,6 +162,8 @@ input[type="button"]:focus {
     position: relative;
     font-size: 2.2rem;
     text-align: center;
+    border: 2px solid black;
+    background-color: white;
 }
 
 .Info {
@@ -171,15 +185,4 @@ input[type="button"]:focus {
     fill: none;
     stroke: #000000;
     stroke-width: 2px;
-}
-
-#newScreen {
-    min-height: 100vh;
-    min-width: 100vw;
-    position: fixed;
-    /*    z-index: 999;*/
-    top: 0;
-    left: 0;
-    background-color: red;
-    transition: min-width 5s;
 }
